@@ -19,6 +19,18 @@ fmod LAMBDA-MAP{X :: MOP} is
   eq $map (E ; L, A) = $map (L, A ; op(E)) .
 endfm
 
+
+*** --------------------
+fmod NAT-LIST-MAP is
+  pr LIST{String} .
+  pr SET{Nat} .
+  op _from-str-to-nat_ : List{String} -> Set{Map} [map : (length, __, _,_)] .
+endfm
+
+
+
+
+
 *** 1st example: a list of nat and the successor op
 view NatList from MOP to NAT-LIST is
   sort Elt to NatList .
@@ -34,6 +46,7 @@ fmod NAT-LIST-MAP is
   pr LAMBDA-MAP{NatList} .
 endfm
 
+*** --------------------
 
 *** 2nd example: a list of strings coverted into a list of nat using length
 *** we need to define a module including both kinds of lists
@@ -43,13 +56,6 @@ fmod STRING-NAT-LIST is
 endfm
 
 *** --------------- NEW 1 ---------------
-fth MAP is 
- sort El .
- sort El' .
- op map : El -> El' .
-endfth
-
-
 view StrNatList from MOP to STRING-NAT-LIST is
   sort Elt to List{String} .
   sort Elt' to List{Nat} .
@@ -82,6 +88,7 @@ endv
 ***  Maude> red map(nil 2 3 4 0 9 nil) .
 fmod NAT-LIST-MAP is
   pr LAMBDA-MAP{NatList+3} .
+  op _from-str-to-nat_ : List{String} -> Set{Nat} [map : (length, __, _,_)] .
 endfm
 *** ------------------------------------
 

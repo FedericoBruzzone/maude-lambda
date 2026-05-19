@@ -2,7 +2,7 @@
 
 fth MONOID is 
  sort Elt .
- op nil : -> Elt . 
+ op nil : -> Elt [pconst] . 
  op _;_ : Elt Elt -> Elt [assoc id: nil] .  
 endfth
 

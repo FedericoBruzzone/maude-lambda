@@ -66,11 +66,11 @@ fmod ARROW{X :: TRIV, Y :: TRIV} is
 
   sort Arrow{X,Y} .
 
-  op lambda_:_ : X$Elt Y$Elt -> Arrow{X,Y} [ctor] .
-  op apply     : Arrow{X,Y} X$Elt -> [Y$Elt] .
+  op lambda_:_ : X$Elt [Y$Elt] -> [Arrow{X,Y}] [ctor] .
+  op apply     : [Arrow{X,Y}] X$Elt -> [Y$Elt] .
 
   vars x z : X$Elt .
-  var y    : Y$Elt .
+  var y    : [Y$Elt] .
 
   op ARR-ERR : -> [Y$Elt] .
   eq apply(lambda x : y, z) =
@@ -89,9 +89,9 @@ fmod MAP-LIST{X :: TRIV, Y :: TRIV} is
   protecting LIST{X} .
   protecting LIST{Y} .
 
-  op map : Arrow{X,Y} List{X} -> List{Y} .
+  op map : [Arrow{X,Y}] List{X} -> [List{Y}] .
 
-  var f : Arrow{X,Y} .
+  var f : [Arrow{X,Y}] .
   var e : X$Elt .
   var l : List{X} .
 
@@ -99,16 +99,6 @@ fmod MAP-LIST{X :: TRIV, Y :: TRIV} is
   eq map(f, e l)  = append(apply(f, e), map(f, l)) .
 
 endfm
-
-fmod EX is
-  protecting MAP-LIST{Nat, String} * (sort List{Nat} to NatList, sort NeList{Nat} to NeNatList) .
-  protecting CONVERSION .
-  op addOne     : Nat -> Arrow{Nat,String} .
-  var n : Nat .
-  eq addOne(n)   = lambda n : string(n,10)  .
-endfm
-
-red in EX : map(addOne(n), (1 2 3)) . 
 
 fmod EX2 is
   protecting MAP-LIST{Nat, Nat} * (sort List{Nat} to NatList, sort NeList{Nat} to NeNatList) .
@@ -139,3 +129,107 @@ fmod EX4 is
 endfm
 
 red in EX4 : map(addOne(n), (1 2 3)) . 
+
+fmod EX is
+  protecting MAP-LIST{Nat, String} * (sort List{Nat} to NatList, sort NeList{Nat} to NeNatList) .
+  protecting CONVERSION .
+  op addOne     : Nat -> Arrow{Nat,String} .
+  var n : Nat .
+  eq addOne(n)   = lambda n : string(n,10)  .
+endfm
+
+*** non funzionaVA perchè string(n,10) ha come tipo, GIUSTAMENTE [List{String}] (string è definita come finzione parziale)
+red in EX : map(addOne(n), (1 2 3)) . 
+
+--- nuova definizione ---
+in MONOID 
+
+view MONOID from TRIV to MONOID is
+endv
+
+view MONOID+ from TRIV to MONOID+ is
+endv
+
+fmod MAP-OP{X :: MONOID+, Y :: MONOID} is
+  protecting ARROW{MONOID+,MONOID}{X,Y} * (sort Arrow{MONOID+,MONOID}{X,Y} to Arrow{X,Y}).
+  op map : [Arrow{X,Y}] X$Elt -> [Y$Elt] .
+
+  var f : [Arrow{X,Y}] .
+  var e : X$El .
+  var l : X$Elt .
+
+  eq map(f, X$nil)  = Y$nil .
+  eq map(f, e ; l)  = apply(f, e) ; map(f, l) .
+endfm
+
+--- Examples
+
+view NatList+ from MONOID+ to NAT-LIST is
+  sort Elt to NatList .
+  sort El to Nat .
+  op _;_ to __ .
+endv
+
+view StringList from MONOID to LIST{String} is
+  sort Elt to List{String} .
+  op _;_ to __ .
+endv
+
+fmod NEW-EX1 is
+  protecting MAP-OP{NatList+, StringList} .
+  protecting CONVERSION .
+  op toString  : Nat -> Arrow{NatList+,StringList} .
+  var n : Nat .
+  eq toString(n) = lambda n : string(n, 10)  .
+endfm
+
+red in NEW-EX1 : map(toString(n), (1 2 3)) . 
+
+--- parameterized views (better) ---
+view ListAsMon+{X :: TRIV} from MONOID+ to LIST{X} is 
+  sort Elt to List{X} .
+  sort El to X$Elt .
+  op _;_ to __ .
+endv
+
+view ListAsMon{X :: TRIV} from MONOID to LIST{X} is 
+  sort Elt to List{X} .
+  op _;_ to __ .
+endv
+
+fmod NEW-EX2 is
+  protecting MAP-OP{ListAsMon+{Float}, ListAsMon{String}} .
+  protecting CONVERSION .
+  op toString  : Float -> Arrow{ListAsMon+{Float}, ListAsMon{String}} .
+  var x : Float .
+  eq toString(x) = lambda x : string(x) .
+endfm
+
+red in NEW-EX2 : map(toString(x), (1.0 2.0 3.0)) .
+
+
+*** particular (frequent) case: map on the same structure
+view MONOID' from MONOID to MONOID+ is
+endv 
+
+view MONOID'' from MONOID+ to MONOID+ is
+endv
+
+fmod HOM-MAP-OP{X :: MONOID+, Y :: MONOID+} is
+   protecting MAP-OP{MONOID'', MONOID'}{X,Y} * (sort Arrow{MONOID'', MONOID'}{X,Y} to Arrow{X,Y}) .
+endfm
+
+fmod SIMPLE-MAP-OP{X :: MONOID+} is
+   protecting HOM-MAP-OP{X, X} * (sort Arrow{X, X} to Arrow{X}).
+endfm
+
+fmod NEW-EX3 is
+  protecting SIMPLE-MAP-OP{ListAsMon+{String}} .
+  op  double  : String -> Arrow{ListAsMon+{String}} .
+  var s : String .
+  eq double(s) = lambda s : s + s .
+endfm
+
+red in NEW-EX3 : map(double(s), ("uno" "due" "tre")) .
+
+red in NEW-EX3 : map(lambda w:String : w:String + w:String, ("uno" "due" "tre")) .
