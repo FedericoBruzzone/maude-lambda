@@ -47,7 +47,6 @@ endfm
 *** ============================================================
 
 fmod ARROW{X :: TRIV, Y :: TRIV} is
-  protecting META-LEVEL .
   protecting SUBST .
 
   sort Arrow{X,Y} .
