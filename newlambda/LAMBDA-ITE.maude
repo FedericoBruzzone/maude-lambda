@@ -107,6 +107,9 @@ endv
 --- ALTERNATIVE DEF ---
 --- the COLLECTION' theory doesn't "satisfy" ITERABLE
 --- duplicated MAP- in which both the source and the target are COLLECTION'
+--- NOTE: 
+--- COLLECTION' can be used as source of a map operation only if __ is a constructor !!
+--- See the counter-example with ELIST 
 
 fth COLLECTION' is
   including BASE-STRUCT . 
@@ -147,4 +150,14 @@ view ElistAsColl'{X :: TRIV} from COLLECTION' to ELIST{X} is
   op (L Y) to term [ l(L), Y ] .
   op (L L') to term [ l(L), l(L') ] .
   
+endv
+
+view ElistAsIte{X :: TRIV} from ITERABLE to ELIST{X} is 
+  sort Coll to Elist{X} .
+  sort Elt to X$Elt .
+  var Y : Elt .
+  var L  : Coll .
+  op nil to term [ nil ] .
+  op get(L) to term head(l(L)) .
+  op remainder(L) to term [ tail(l(L)) ] .
 endv

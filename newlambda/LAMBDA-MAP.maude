@@ -51,15 +51,15 @@ fmod MAP-COLL'{X :: COLLECTION', Y :: COLLECTION'} is
 
   var f  : [Arrow{X,Y}] .
   var e  : X$Elt .
-  var l  : X$Coll .
+  vars l l'' : X$Coll .
   var l' : [Y$Coll] .
   
   op $map : [Arrow{X,Y}] X$Coll [Y$Coll] -> [Y$Coll] .  --- tail recursive
 
   eq map(f, l) = $map(f, l, Y$nil) .
   eq $map(f, X$nil, l') = l' .
-  eq $map (f, (l e), l') = $map(f, l, l' (f e)) . --- may not always work !
-
+  --- eq $map (f, (l e), l') = $map(f, l, l' (f e)) . --- may not always work !
+ ceq $map (f, l, l') = $map(f, l'', l' (f e)) if l'' e := l . 
 endfm
 
 fmod MAP-SAME-COLL'{X :: COLLECTION'} is --- homogeneous map

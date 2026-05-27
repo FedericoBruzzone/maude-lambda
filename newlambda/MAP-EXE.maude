@@ -140,6 +140,8 @@ endfm
 
 red in NEW-EX4' : map(toString(x), (1.0 2.0 3.0 1.0 2.0 3.0)) .
 
+--- the following doesn't work because in ELIST the "add" operation '__' is not a constructor 
+
 fmod NEW-EX5' is
   protecting MAP-COLL'{ElistAsColl'{Float}, SetAsColl'{String}} * (sort Arrow{ElistAsColl'{Float}, SetAsColl'{String}} to Arrow{Float,String}) .
   protecting CONVERSION .
@@ -149,6 +151,16 @@ fmod NEW-EX5' is
 endfm
 
 red in NEW-EX5' : map(toString(x), [ 1.0, 2.0, 3.0, 1.0, 2.0, 3.0 ]) .
+
+fmod NEW-EX5'' is
+  protecting MAP-ITE{ElistAsIte{Float}, SetAsColl{String}} * (sort Arrow{ElistAsIte{Float}, SetAsColl{String}} to Arrow{Float,String}) .
+  protecting CONVERSION .
+  op toString  : Float -> Arrow{Float, String} .
+  var x : Float .
+  eq toString(x) = lambda x : string(x) .
+endfm
+
+red in NEW-EX5'' : map(toString(x), [ 1.0, 2.0, 3.0, 1.0, 2.0, 3.0 ]) .
 
 --- example of non-trivial lambda substitution 
 
